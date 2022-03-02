@@ -10,7 +10,7 @@ import config from '../../../env.json';
 
 const DetailRepo=props=>{
     const {data,userNotExist,username}=props.route.params;
-    const [notesThumbnailUrl,setNotesThumbnailUrl] = useState('https://wallpaperaccess.com/full/1732235.jpg');
+    const [userThumbnailUrl,setUserThumbnailUrl] = useState('https://wallpaperaccess.com/full/1732235.jpg');
     const [userDetails,setUserDetails]=useState(null);
     const [loading,setLoading]=useState(false);
     const [onRefreshloading,setOnRefreshloading]=useState(false);
@@ -72,8 +72,7 @@ const DetailRepo=props=>{
         getRepoFromApi(true);
     }
 
-    const onNotesCardPress=(data)=>{
-        console.log('onNotesCardPress');
+    const onRepoCardPress=(data)=>{
         props.navigation.navigate('ReadMe',{data:data})
     }
 
@@ -93,20 +92,20 @@ const DetailRepo=props=>{
                         <Image
                         style={styles.userDp}
                         source={{
-                            uri:userDetails?.avatar_url||notesThumbnailUrl,
+                            uri:userDetails?.avatar_url||userThumbnailUrl,
                         }} />
                         <View style={{flex:1,alignItems:'flex-start',justifyContent:'center',height:70}}>
-                            <Text numberOfLines={1} style={styles.notesTitle}>
+                            <Text numberOfLines={1} style={styles.userTitle}>
                                 {userDetails?.name||userDetails?.login}
                             </Text>
                             <View style={{flexDirection:'row',justifyContent:'space-around'}}>
                                 <TouchableOpacity>
-                                    <Text numberOfLines={1} style ={styles.subject}>
+                                    <Text numberOfLines={1} style ={styles.followDetail}>
                                         {'Followers: '+userDetails?.followers}
                                     </Text>
                                 </TouchableOpacity>
                                 <TouchableOpacity>
-                                    <Text numberOfLines={1} style ={styles.subject}>
+                                    <Text numberOfLines={1} style ={styles.followDetail}>
                                         {'Followings: '+userDetails?.following}
                                     </Text>
                                 </TouchableOpacity>
@@ -120,21 +119,19 @@ const DetailRepo=props=>{
                     :
                     <>
                         <FlatList
-                            contentContainerStyle ={styles.notesContainer}
+                            contentContainerStyle ={styles.repoContainer}
                             showsVerticalScrollIndicator={false}
                             style={{flex:1,marginBottom:0}}
-                            // showsVerticalScrollIndicator={false}
                             onEndReached={loadmore}
                             data={repoData}
                             ListEmptyComponent={<Text style ={styles.noDataFound}>{locales.global.noRepoFound}</Text>}
                             horizontal={false}
-                            // numColumns={2}
                             renderItem={({item}) =>{
                                 return(
                                 <RenderCard
                                     navigation={props.navigation}
                                     data={item} 
-                                    onNotesCardPress={onNotesCardPress}
+                                    onRepoCardPress={onRepoCardPress}
                                 />
                                 )
                             }}
@@ -169,9 +166,7 @@ const styles=StyleSheet.create({
     },
     innerContainer:{
         flex:1,
-        // backgroundColor:'red',
         alignItems:'center',
-        // justifyContent:'center',
         width:'100%',
         backgroundColor:colors.white,
     },
@@ -191,42 +186,27 @@ const styles=StyleSheet.create({
         marginTop:20,
         alignSelf:"center"
     },
-    overlay:{
-        position:'absolute',
-        height:'100%',
-        width:'100%',
-        zIndex:1,
-        backgroundColor:'rgba(126,126,126,0.5)'
-    },
-    notesContainer:{
-        // flexDirection:'column',
+    repoContainer:{
         width:'100%',
         justifyContent:'center',
         alignItems:'center',
-        // bottom:100,
-        // marginTop:60
-        // // top:10
-        // paddingBottom:90
-    },
-    image:{
-        width:200,
-        height:150,
-        // borderRadius:50,
     },
     userDp:{
         width:70,
         height:70,
         borderRadius:50,
     },
-    notesTitle: {
+    userTitle: {
         fontSize:18,
+        fontWeight:'500',
         color: colors.black,
         textTransform: 'uppercase',
         paddingLeft: 10,
         paddingBottom: 5,
     },
-    subject:{
+    followDetail:{
         fontSize: 14,
+        fontWeight:'500',
         color: colors.black,
         paddingLeft: 10,
         textDecorationLine:'underline',
