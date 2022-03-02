@@ -7,15 +7,13 @@ import moment from 'moment';
 const RenderCard=props=>{
     const {
         data,
-        onNotesCardPress,
-        setModalAppears,
-        setClicked
+        onRepoCardPress,
     } = props;   
 
     return(
         <TouchableOpacity 
-        onPress={()=>onNotesCardPress(data)}
-        style={styles.notesCard} >
+        onPress={()=>onRepoCardPress(data)}
+        style={styles.repoCard} >
             <LinearGradient
             start={{ x: 0, y: 1 }}
             end={{ x: 1, y: 0 }}
@@ -27,14 +25,18 @@ const RenderCard=props=>{
                 width: '100%',
                 borderTopLeftRadius: 25,
                 borderBottomRightRadius: 25,
+                paddingVertical:10,
             }}
             colors={[colors.themeBlue, colors.gray]}
             >
                 <View style={{flex:1}}>
-                    <Text numberOfLines={1} style={styles.notesTitle}>
-                        {data.name}
-                    </Text>
-                    <Text numberOfLines={1} style ={styles.subject}>
+                    <View style={{flexDirection:'row',justifyContent:'space-between'}}>
+                        <Text numberOfLines={1} style={styles.repoTitle}>
+                            {data.name}
+                        </Text>
+                        <Text>{data?.default_branch||''}</Text>
+                    </View>
+                    <Text numberOfLines={1} style ={styles.description}>
                         {data?.description||''}
                     </Text>
                     <View style={{flexDirection:'row',paddingHorizontal:10,justifyContent:'space-between'}}>
@@ -76,14 +78,15 @@ const styles=StyleSheet.create({
         borderBottomRightRadius:4,
         marginLeft:110
     },
-    notesTitle: {
+    repoTitle: {
         fontSize:18,
         color: colors.white,
         textTransform: 'uppercase',
         paddingLeft: 10,
         marginVertical: 5,
+        width:Dimensions.get('window').width*0.7
     },
-    subject:{
+    description:{
         fontSize: 12,
         color: colors.white,
         textTransform: 'uppercase',
@@ -96,10 +99,10 @@ const styles=StyleSheet.create({
         height:'100%',
         borderRadius:7,
     },
-    notesCard:{
+    repoCard:{
         height:80,
         width:Dimensions.get('window').width*0.9,
-        marginVertical:10,
+        marginVertical:15,
         borderRadius:7,
         // backgroundColor:colors.themeBlue,
     },

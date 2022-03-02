@@ -57,7 +57,7 @@ const Dashboard=props=>{
                         autoCapitalize='none'
                     />
                     <View style={{width:'80%'}}>
-                        {userNotExist?<Text style={{color:'red'}}>{'User Not Exist'}</Text>:null}
+                        {userNotExist?<Text style={{color:'red'}}>{locales.global.userNotExist}</Text>:null}
                     </View>
                     <TouchableOpacity
                         onPress={onSearch}
