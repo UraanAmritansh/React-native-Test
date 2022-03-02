@@ -53,7 +53,7 @@ const ReadMe=props=>{
                     contentWidth={400}
                     source={{ html: htmlContent }}
                     tagsStyles={{
-                        body: {color: 'black'},
+                        body: {color: colors.black,backgroundColor:colors.white},
                         a: {color: 'red'}
                     }}
                     />

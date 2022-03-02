@@ -1,9 +1,7 @@
 import moment from 'moment';
 import React, { useEffect, useState } from 'react';
-import { View, Text, TouchableOpacity, FlatList, ActivityIndicator, ScrollView, Dimensions, StyleSheet, TextInput, Platform, Image } from 'react-native';
+import { View, Text, TouchableOpacity, FlatList, ActivityIndicator, ScrollView, Dimensions, StyleSheet, TextInput, Platform, Image, RefreshControl } from 'react-native';
 import Header from '../../components/Header';
-import FontAwesome from 'react-native-vector-icons/FontAwesome';
-import ToastMessage from '../../components/toast';
 import colors from '../../constants/colors';
 import { getData } from '../../Api';
 import { locales } from '../../constants/locales';
@@ -15,41 +13,64 @@ const DetailRepo=props=>{
     const [notesThumbnailUrl,setNotesThumbnailUrl] = useState('https://wallpaperaccess.com/full/1732235.jpg');
     const [userDetails,setUserDetails]=useState(null);
     const [loading,setLoading]=useState(false);
+    const [onRefreshloading,setOnRefreshloading]=useState(false);
+    const [repoData,setRepoData]=useState(data);
+    const [page,setPage]=useState(1);
 
     useEffect(()=>{
         console.log('data',data);
-        setLoading(true);
+        // setLoading(true);
         getData(`${config.base_url}/users/${username}`)
         .then(res=>{
-            setLoading(false);
+            // setLoading(false);
             setUserDetails(res);
             console.log('user detail res',res);
         })
         .catch(err=>{
-            setLoading(false);
+            // setLoading(false);
             setUserDetails(null);
             console.log('user detail err.res',err.response);
         })
     },[])
 
-
-    const loadmore=()=>{
-        setLoading(true);
-        setUserNotExist(false);
-        getData(`${config.base_url}/users/${keyword}/repos?per_page=10&page=${page}`)
+    const getRepoFromApi=(refresh)=>{
+        getData(`${config.base_url}/users/${username}/repos?per_page=10&page=${refresh?1:page+1}`)
         .then(res=>{
+            if(refresh){
+                console.log('user refresh res',res);
+            }else{
+                console.log('user loadmore res',res);
+            }
+            if(res.length){
+                if(refresh){
+                    setPage(1);
+                    setRepoData(res);
+                }else{
+                    setPage(page+1);
+                    setRepoData([...repoData,...res]);
+                }
+            }
             setLoading(false);
-            setRepos(res);
-            props.navigation.navigate('DetailRepo',{data:res,username:keyword})
+            setOnRefreshloading(false);
         })
         .catch(err=>{
-            setUserNotExist(true);
             setLoading(false);
-            setRepos([]);
             console.log('err.res',err.response);
         })
     }
 
+
+    const loadmore=()=>{
+        if(repoData.length==(page*10)){
+            setLoading(true);
+            getRepoFromApi();
+        }
+    }
+
+    const onRefresh=()=>{
+        setOnRefreshloading(true);
+        getRepoFromApi(true);
+    }
 
     const onNotesCardPress=(data)=>{
         console.log('onNotesCardPress');
@@ -60,7 +81,7 @@ const DetailRepo=props=>{
         <View style={styles.container}>
             <Header
                 leftIcon
-                title={'Repos'}
+                title={`${username}'s repositories`}
                 onLeftIconPress={()=>{
                     props.navigation.goBack();
                 }}
@@ -68,7 +89,7 @@ const DetailRepo=props=>{
             
             <View style={styles.innerContainer}>
                 {userDetails?
-                    <View style={{flexDirection:'row',alignItems:'flex-start',justifyContent:'flex-start',width:'80%'}}>
+                    <View style={{flexDirection:'row',alignItems:'flex-start',justifyContent:'flex-start',width:'80%',marginVertical:20}}>
                         <Image
                         style={styles.userDp}
                         source={{
@@ -103,8 +124,8 @@ const DetailRepo=props=>{
                             showsVerticalScrollIndicator={false}
                             style={{flex:1,marginBottom:0}}
                             // showsVerticalScrollIndicator={false}
-                            // onEndReached={isFilterApplied?filterDataEndReach:loadMore}
-                            data={data}
+                            onEndReached={loadmore}
+                            data={repoData}
                             ListEmptyComponent={<Text style ={styles.noDataFound}>{locales.global.noRepoFound}</Text>}
                             horizontal={false}
                             // numColumns={2}
@@ -117,17 +138,21 @@ const DetailRepo=props=>{
                                 />
                                 )
                             }}
-                            // refreshControl={
-                            //     <RefreshControl
-                            //     refreshing={loading}
-                            //     // onRefresh={onRefresh}
-                            //     onRefresh={onRefreshWholePage}
-                            //     />
-                            // }
+                            refreshControl={
+                                <RefreshControl
+                                    refreshing={onRefreshloading}
+                                    onRefresh={onRefresh}
+                                />
+                            }
                             keyExtractor={(item, index) => index.toString()}
                         />
                     </>
                 }
+                {loading?
+                    <View style={{position:'absolute',bottom:0}}>
+                        <ActivityIndicator color={colors.black} size={'small'} />
+                    </View>
+                :null}
             </View>
 
         </View>
@@ -149,7 +174,6 @@ const styles=StyleSheet.create({
         // justifyContent:'center',
         width:'100%',
         backgroundColor:colors.white,
-        marginTop:50
     },
     textInput:{
         borderBottomWidth:StyleSheet.hairlineWidth,
@@ -182,7 +206,7 @@ const styles=StyleSheet.create({
         // bottom:100,
         // marginTop:60
         // // top:10
-        paddingBottom:90
+        // paddingBottom:90
     },
     image:{
         width:200,

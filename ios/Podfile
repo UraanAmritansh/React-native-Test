@@ -12,6 +12,8 @@ target 'git_repo' do
     :hermes_enabled => false
   )
 
+  pod 'RNVectorIcons', :path => '../node_modules/react-native-vector-icons'
+
   target 'git_repoTests' do
     inherit! :complete
     # Pods for testing
